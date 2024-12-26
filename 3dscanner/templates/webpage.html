@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Images for Depth Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .container {
+            text-align: center;
+            margin: 20px;
+        }
+        .preview, .depth-map, .mesh-result {
+            margin: 20px;
+            max-width: 500px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+        }
+        .upload-btn, .mesh-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .upload-btn:hover, .mesh-btn:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Images to Generate Depth Map</h1>
+
+        <!-- Form to upload images -->
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="files" accept="image/*" multiple required>
+            <button type="submit" class="upload-btn">Upload Images</button>
+        </form>
+
+        <!-- Display original uploaded images -->
+        {% if filenames %}
+        <div class="preview">
+            <h2>Uploaded Images</h2>
+            {% for filename in filenames %}
+                <img src="{{ url_for('processed_image', filename=filename) }}" alt="Uploaded Image" style="width:100%; margin-bottom: 10px;">
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Display depth map -->
+        {% if depth_filenames %}
+        <div class="depth-map">
+            <h2>Generated Depth Maps</h2>
+            {% for depth_filename in depth_filenames %}
+                <img src="{{ url_for('depth_image', filename=depth_filename) }}" alt="Depth Map" style="width:100%; margin-bottom: 10px;">
+            {% endfor %}
+            
+            <!-- Button to create mesh from depth maps -->
+            <form action="/create_mesh" method="post">
+                <button type="submit" class="upload-btn">Create Mesh from Depth Maps</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Display mesh creation result -->
+        {% if mesh_filename %}
+        <div class="mesh-result">
+            <h2>Mesh Created Successfully!</h2>
+            <a href="{{ url_for('depth_image', filename=mesh_filename) }}" download>Download Mesh File</a>
+        </div>
+        {% endif %}
+        
+        <!-- Error message display -->
+        {% if error_message %}
+        <div class="error">
+            <p>{{ error_message }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
